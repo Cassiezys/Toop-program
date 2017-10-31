@@ -1,0 +1,128 @@
+#include<stdio.h>
+#include<string.h>
+#include<math.h>
+void trans(char str[],char exp[])
+{
+    struct{
+        char data[50];
+        int top;
+    }opr;
+    int i=0,t=0;
+    opr.top=-1; ///t用于记录exp【t】 opr.top记录opr.data[]
+    char ch=str[i];
+    i++;
+    while(ch!='\0')
+    {
+        switch(ch)
+        {
+        case '(':
+            opr.top++;
+            opr.data[opr.top]=ch;
+            break;
+        case ')':
+            while(opr.data[opr.top]!='(')
+            {
+                exp[t]=opr.data[opr.top];
+                opr.top--;
+                t++;
+            }
+            opr.top--; ///删除（
+            break;
+        case '+':case '-':
+            while(opr.top!=-1&&opr.data[opr.top]!='(')
+            {
+                exp[t]=opr.data[opr.top];
+                t++;
+                opr.top--;
+            }
+            opr.top++;
+            opr.data[opr.top]=ch;
+            break;
+        case '*':case '/':
+            while(opr.data[opr.top]=='*'||opr.data[opr.top]=='/')
+            {
+                exp[t]=opr.data[opr.top];
+                t++;
+                opr.top--;
+            }
+            opr.top++;
+            opr.data[opr.top]=ch;
+            break;
+        default:
+            while(ch>='0'&&ch<='9')
+            {
+                exp[t]=ch;
+                t++;
+                ch=str[i];
+                i++;
+            }
+            i--;
+            exp[t]='#';
+            t++;
+        }
+        ch=str[i];
+        i++;
+    }
+    while(opr.top!=-1)
+    {
+        exp[t]=opr.data[opr.top];
+        t++;
+        opr.top--;
+    }
+    exp[t]='\0';
+}
+float result(char exp[]){
+    struct{
+        float data[50];
+        int top;
+    }st;
+    st.top=-1;
+    int t=0,d;
+    char ch=exp[t];
+    t++;
+    while(ch!='\0')
+    {
+        switch(ch)
+        {
+        case '+':
+            st.data[st.top-1]+=st.data[st.top];
+            st.top--;
+            break;
+        case '-':
+            st.data[st.top-1]-=st.data[st.top];
+            st.top--;
+            break;
+        case '*':
+            st.data[st.top-1]*=st.data[st.top];
+            st.top--;
+            break;
+        case '/':
+            st.data[st.top-1]/=st.data[st.top];
+            st.top--;
+            break;
+        default:
+        d=0;
+        while(ch>='0'&&ch<='9')
+        {
+            d=d*10+ch-'0';
+            ch=exp[t];
+            t++;
+        }
+        st.top++;
+        st.data[st.top]=d;
+        }
+        ch=exp[t];
+        t++;
+    }
+    return st.data[st.top];
+}
+int main()
+{
+    char str[50],exp[50];
+    printf("请输入需要计算的公式:");
+    gets(str);
+    trans(str,exp);//将str换成后缀表达式
+    printf("公式的后缀表达式为%s",exp);
+    printf("结果为:%g",result(exp));
+
+}
